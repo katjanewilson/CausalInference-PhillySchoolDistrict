@@ -2,19 +2,12 @@
 
 Report using observational data on a teacher intervention
 
-
-<p align="center">
-<img src="https://github.com/katjanewilson/WhartonAnalytics-YouTube/blob/master/images/youtube_logo.png"
-  alt="Size Limit comment in pull request about bundle size changes"
-  width="400" height="200">
-</p>
-
 ## Data Cleaning Notes
 
 ## Packages
 
 * [Tidyverse](https://cran.r-project.org/web/packages/tidyverse/tidyverse.pdf)
-* [MatchIt](https://cran.r-project.org/web/packages/ClusterR/ClusterR.pdf)
+* [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
 
 ## Logistic Regression
