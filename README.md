@@ -4,6 +4,8 @@ Report using observational data on a teacher intervention
 
 ## Data Cleaning Notes
 
+Data kept private due to NDA
+
 ## Packages
 
 * [Tidyverse](https://cran.r-project.org/web/packages/tidyverse/tidyverse.pdf)
