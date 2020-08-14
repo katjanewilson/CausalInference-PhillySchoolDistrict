@@ -1,0 +1,431 @@
+---
+title: "Appendix B"
+author: "Kat Wilson"
+date: "7/28/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r cars, include=FALSE}
+#install.packages("MatchIt")
+library(MatchIt)
+library(broom)
+library(tidyverse)
+
+rm(list = ls()) #clear the environment
+load("merged_participation_analysis.Rdata")
+data <- merged_participation
+table(data$Participated)
+
+######
+# PART 2- Change factor and data clearn
+########
+
+#For our data, we will want to choose the max years that the teachers participated
+analysis_data <- aggregate(`Years of Service` ~ `Deidentified ID`, data, max)
+analysis_data <- merge(analysis_data, merged_participation)
+analysis_data <- unique(analysis_data, by = 'Deidentified ID')
+table(analysis_data$Participated) #312 participated in tip
+#change outcome to factor
+analysis_data$Retained <- as.factor(analysis_data$Retained)
+
+## redo the logistic regression models
+model <- glm(Retained ~ Participated, data = analysis_data, family = binomial)
+summary(model) #participated is a significant predictors of retention
+model2 <- glm(Retained ~ Participated + `Employee Age`, data = analysis_data, family = binomial)
+summary(model2)
+model3 <- glm(Retained ~ Participated + Strata, data = analysis_data, family = binomial)
+summary(model3)
+model4 <- glm(Retained ~ Participated + Ethnicity, data = analysis_data, family = binomial)
+summary(model4) ##Interactions of Ethnicity
+
+######
+# PART 3- Visualize Distributions/Matchings
+########
+
+#numerical variables
+data <- analysis_data %>%
+  group_by(Participated) %>%
+  summarise(n_parts = n(),
+            mean_years_service = mean(`Years of Service`),
+            mean_age = mean(`Employee Age`))
+data
+table(analysis_data$Strata, analysis_data$Participated)
+table(analysis_data$`Employee Age`, analysis_data$Participated)
+#categorical variables
+table(analysis_data$Title, analysis_data$Participated)
+table(analysis_data$Gender, analysis_data$Participated)
+table(analysis_data$Ethnicity, analysis_data$Participated)
+table(analysis_data$`HOME ORG CODE`, analysis_data$Participated)
+
+
+######
+# PART 4- Create binary indicators
+########
+
+analysis_data <- analysis_data %>%
+  select(Ethnicity, Title, Gender, `Employee Age`, Participated,
+         Retained, `HOME ORG CODE`, `Years of Service`, Strata,
+         `Deidentified ID`)
+#recode teachers
+analysis_data$title_status <- ifelse(analysis_data$Title ==
+                                       "TEACHER,FULL TIME"| analysis_data$Title ==
+                                       "TEACHER,SPEC EDUCATION",
+                                     
+                                     'teacher','non_classroom_teacher')
+
+#recode ethnicity
+analysis_data$Ethnicity <- ifelse(analysis_data$Ethnicity ==
+                                    "NAT AM/INUIT"| analysis_data$Ethnicity ==
+                                    "OTHER" | analysis_data$Ethnicity ==
+                                    "PREF NO DISC",
+                                  
+                                  'other',analysis_data$Ethnicity)
+
+##recode employee age
+analysis_data <- mutate(analysis_data,
+                        Age = case_when(
+                          `Employee Age` >= 70 ~ "70s",
+                          `Employee Age` >=60 & `Employee Age`< 70 ~ "60s",
+                          `Employee Age` >=50 & `Employee Age`< 60 ~ "50s",
+                          `Employee Age` >=40 & `Employee Age`< 50 ~ "40s",
+                          `Employee Age` >=30 & `Employee Age`< 40 ~ "30s",
+                          `Employee Age` >=20 & `Employee Age`< 30 ~ "20s"
+                        ))
+table(analysis_data$Age, analysis_data$Participated)
+table(analysis_data$Ethnicity, analysis_data$Participated)
+table(analysis_data$title_status, analysis_data$Participated)
+
+##add indicator variable for the categorical variables
+analysis_data <- mutate(analysis_data,
+                        title_binary= case_when(
+                          title_status == "teacher" ~ 1,
+                          title_status != "teacher" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        strata_binary_10_15= case_when(
+                          Strata == "10 to 15 years" ~ 1,
+                          Strata != "10 to 15" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        strata_binary_5_10= case_when(
+                          Strata == "5 to less than 10 years" ~ 1,
+                          Strata != "5 to less than 10 years" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        strata_binary_less_5= case_when(
+                          Strata == "less than 5" ~ 1,
+                          Strata != "less than 5" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        strata_binary_greater_15= case_when(
+                          Strata == "greater than or equal to 15" ~ 1,
+                          Strata != "greater than or equal to 15" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        ethnicity_binary_african_am= case_when(
+                          Ethnicity == "AFRICAN AM" ~ 1,
+                          Ethnicity != "AFRICAN AM" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        ethnicity_binary_caucasian =case_when(
+                          Ethnicity == "CAUCASIAN" ~ 1,
+                          Ethnicity != "CAUCASIAN" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        ethnicity_binary_asian =case_when(
+                          Ethnicity == "ASIAN" ~ 1,
+                          Ethnicity != "ASIAN" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        ethnicity_binary_latina =case_when(
+                          Ethnicity == "LATINA/O" ~ 1,
+                          Ethnicity != "LATINA/O" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        ethnicity_binary_other =case_when(
+                          Ethnicity == "other" ~ 1,
+                          Ethnicity != "other" ~ 0
+                        ))
+
+
+analysis_data <- mutate(analysis_data,
+                        gender_binary_female =case_when(
+                          Gender == "F" ~ 1,
+                          Gender != "F" ~ 0
+                        ))
+analysis_data <- mutate(analysis_data,
+                        gender_binary_male =case_when(
+                          Gender == "M" ~ 1,
+                          Gender != "M" ~ 0
+                        ))
+
+
+######
+# PART 5- Visualize Region of Common Support
+########
+
+###visualizations
+library(ggplot2)
+p <- ggplot(analysis_data, aes(fill = factor(Participated))) +
+  geom_bar(position = "dodge") +
+  scale_fill_discrete("Smoke")
+p + aes(x=Ethnicity)
+p + aes(x = Gender)
+p + aes(x= title_status)
+
+###look at distribution
+ggplot(analysis_data, aes(x = `Employee Age`, fill = factor(Participated))) +
+  geom_histogram(position = "identity") +
+  scale_fill_discrete("Participated")
+
+###or we can look at the quantiles within each group
+tapply(analysis_data$`Employee Age`, analysis_data$Participated, 
+       quantile, probs = seq(0.2,1,0.1))
+tapply(analysis_data$`Years of Service`, analysis_data$Participated, 
+       quantile, probs = seq(0.2,1,0.1))
+
+##region of common support
+analysis_data %>%
+  ggplot(aes(x = `Employee Age`)) +
+  geom_histogram(position = "identity") +
+  facet_wrap(~Participated)
+analysis_data %>%
+  ggplot(aes(x = `Years of Service`)) +
+  geom_histogram(position = "identity") +
+  facet_wrap(~Participated)
+
+
+```
+
+
+## Matching Model 1
+
+You can also embed plots, for example:
+
+```{r pressure, echo=TRUE}
+
+### Matching 1- All covariates in the matching model
+##set seed
+set.seed(1731)
+class(analysis_data$Strata)
+analysis_data$Gender <- as.factor(analysis_data$Gender)
+analysis_data$employeeage <- as.numeric(analysis_data$`Employee Age`)
+analysis_data$title_status <- as.factor(analysis_data$title_status)
+analysis_data$Ethnicity <- as.factor(analysis_data$Ethnicity)
+analysis_data$HomeOrgCode <- as.factor(analysis_data$`HOME ORG CODE`)
+analysis_data$YearsOfService <- as.numeric(analysis_data$`Years of Service`)
+nearest <- matchit(Participated ~
+                     Gender+ Ethnicity + Strata + employeeage+ title_status
+                     ,
+                   family = "binomial",
+                   method = "nearest",
+                   caliper = 0.25,
+                   data = analysis_data)
+summary(nearest)
+###plotting these
+#plot(nearest)
+nearest_matched <- match.data(nearest)
+#now perform the statistical analysis
+nearest_matched$Participated <- as.factor(nearest_matched$Participated)
+model <- glm(Retained ~ Participated, data = nearest_matched,
+             family = binomial)
+summary(model)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Trimming
+
+Trim the non TIP sample so that it is only tip in terms of Years of Experience.
+There are no 32 years olds, 38 year olds, or 40 or older TIP teachers. However, these
+grouped ARE represented in the non-TIP sample.
+
+
+```{r pressure2, echo=TRUE}
+set.seed(1731)
+# trimming the sample
+analysis_data_trimmed <- analysis_data %>%
+  filter(YearsOfService %in% c(0:31, 33,34,35,36,37,39))
+
+nearest <- matchit(Participated ~
+                     Gender+ Ethnicity + Strata + employeeage+ title_status
+                     ,
+                   family = "binomial",
+                   method = "nearest",
+                   caliper = 0.25,
+                   data = analysis_data_trimmed)
+summary(nearest)
+###plotting these
+plot(nearest)
+nearest_matched <- match.data(nearest)
+#now perform the statistical analysis
+nearest_matched$Participated <- as.factor(nearest_matched$Participated)
+model <- glm(Retained ~ Participated, data = nearest_matched,
+             family = binomial)
+summary(model)
+```
+
+
+
+
+## Coursen the Ethnicity Variable
+
+Coursen the Ethnicity variable. Match it by Caucasian and non-Caucasian
+
+
+```{r pressure3, echo=TRUE}
+analysis_data <- analysis_data %>%
+  mutate(Caucasian_binary = ifelse(Ethnicity == "CAUCASIAN", 1, 0))
+analysis_data$Caucasian_binary <- as.factor(analysis_data$Caucasian_binary)
+set.seed(111731)
+nearest <- matchit(Participated ~
+                     Gender+ Caucasian_binary + Strata + employeeage+ title_status
+                     ,
+                   family = "binomial",
+                   method = "nearest",
+                   caliper = 0.25,
+                   data = analysis_data)
+summary(nearest)
+###plotting these
+#plot(nearest)
+nearest_matched <- match.data(nearest)
+#now perform the statistical analysis
+nearest_matched$Participated <- as.factor(nearest_matched$Participated)
+model <- glm(Retained ~ Participated, data = nearest_matched,
+             family = binomial)
+summary(model)
+
+table(analysis_data$Age, analysis_data$Caucasian_binary)
+
+```
+
+
+
+
+## Coursen the Ethnicity Variable and use with the trimmed data
+
+Coursen the Ethnicity variable. Match it by Caucasian and non-Caucasian
+
+
+```{r pressure4, echo=TRUE}
+analysis_data_trimmed <- analysis_data_trimmed %>%
+  mutate(Caucasian_binary = ifelse(Ethnicity == "CAUCASIAN", 1, 0))
+analysis_data_trimmed$Caucasian_binary <- as.factor(analysis_data_trimmed$Caucasian_binary)
+set.seed(1731)
+nearest <- matchit(Participated ~
+                     Gender+ Caucasian_binary + Strata + employeeage+ title_status
+                     ,
+                   family = "binomial",
+                   method = "nearest",
+                   caliper = 0.25,
+                   data = analysis_data_trimmed)
+summary(nearest)
+###plotting these
+#plot(nearest)
+nearest_matched <- match.data(nearest)
+#now perform the statistical analysis
+nearest_matched$Participated <- as.factor(nearest_matched$Participated)
+model <- glm(Retained ~ Participated, data = nearest_matched,
+             family = binomial)
+summary(model)
+
+```
+
+
+
+## Assocation of Ethnicity and Strata
+
+
+```{r pressure5, echo=TRUE}
+
+ethnicity_strata <- analysis_data %>%
+  group_by(Ethnicity, Strata) %>%
+  summarise(n =n())
+ethnicity_strata_spread <- spread(ethnicity_strata, key = "Strata", value = "n")
+class(ethnicity_strata_spread$`less than 5`)
+ethnicity_strata_spread <- ethnicity_strata_spread %>%
+  mutate(total = `less than 5` + `5 to less than 10 years`+
+           `10 to 15 years` +`greater than or equal to 15`) %>%
+  mutate(percent_less_than5= `less than 5`/total,
+         percent_5_to_10 = `5 to less than 10 years`/total,
+         percent_10_15 = `10 to 15 years`/total,
+         percent_greater_15 = `greater than or equal to 15`/total)
+ethnicity_strata_spread <- ethnicity_strata_spread %>%
+  select(Ethnicity, percent_less_than5, percent_5_to_10,
+         percent_10_15, percent_greater_15)
+library(scales)
+ethnicity_strata_spread$percent_less_than5 <- percent(ethnicity_strata_spread$percent_less_than5)
+ethnicity_strata_spread$percent_5_to_10 <- percent(ethnicity_strata_spread$percent_5_to_10)
+ethnicity_strata_spread$percent_10_15 <- percent(ethnicity_strata_spread$percent_10_15)
+ethnicity_strata_spread$percent_greater_15 <- percent(ethnicity_strata_spread$percent_greater_15)
+ethnicity_strata_spread
+
+
+ethnicity_strata <- analysis_data %>%
+  group_by(Ethnicity, Strata)
+ggplot(ethnicity_strata, aes(x = Ethnicity, y = YearsOfService)) +
+  geom_boxplot() +
+  facet_wrap(~Strata)
+```
+
+
+
+## Assocation of Ethnicity and Age
+
+
+```{r pressure6, echo=TRUE}
+
+ethnicity_age <- analysis_data %>%
+  group_by(Ethnicity, Age) %>%
+  summarise(n =n())
+
+ethnicity_age_spread <- spread(ethnicity_age, key = "Age", value = "n")
+class(ethnicity_age_spread$`less than 5`)
+ethnicity_age_spread <- ethnicity_age_spread %>%
+  mutate(total = `20s` + `30s`+
+           `40s` +`50s` +`60s`+`70s`) %>%
+  mutate(percent_20s= `20s`/total,
+         percent_30s = `30s`/total,
+         percent_40s = `40s`/total,
+         percent_50s = `50s`/total, 
+         percent_60s = `60s`/total,
+         percent_70s = `70s`/total)
+ethnicity_strata_spread <- ethnicity_age_spread %>%
+  select(percent_20s, percent_30s, percent_40s, percent_50s,
+         percent_60s, percent_70s)
+library(scales)
+ethnicity_age_spread$percent_20s <- percent(ethnicity_age_spread$percent_20s)
+ethnicity_age_spread$percent_30s <- percent(ethnicity_age_spread$percent_30s)
+ethnicity_age_spread$percent_40s <- percent(ethnicity_age_spread$percent_40s)
+ethnicity_age_spread$percent_50s <- percent(ethnicity_age_spread$percent_50s)
+ethnicity_age_spread$percent_60s <- percent(ethnicity_age_spread$percent_60s)
+ethnicity_age_spread$percent_70s <- percent(ethnicity_age_spread$percent_70s)
+ethnicity_age_spread
+
+```
+
+
+
+## Assocation of nonWhite and Age
+
+
+```{r pressure7, echo=TRUE}
+
+caucasian_binary_age <- analysis_data %>%
+  group_by(Caucasian_binary, Age) %>%
+  summarise(n =n())
+
+caucasian_binary_age_spread <- spread(caucasian_binary_age, key = "Age", value = "n")
+caucasian_binary_age_spread
+
+```
