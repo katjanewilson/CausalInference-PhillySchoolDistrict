@@ -12,9 +12,6 @@ Data kept private due to NDA
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
 
-## Logistic Regression
-
-Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
 
 
 ## Model Code
@@ -42,7 +39,9 @@ model <- glm(Retained ~ Participated, data = nearest_matched,
 summary(model)
 ```
 
+## Logistic Regression
 
+Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
 ## Causal Analysis
 
 In Phase 2, we add rigor to the logistic regression by asking if there is a causal relationship between participation in TIP and retention. We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated. </br>
