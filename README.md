@@ -14,7 +14,7 @@ Data kept private due to NDA
 
 ## Logistic Regression
 
-Phase 1 began with a visualization and descriptive analysis of the breakdown of teacher strata and retention. After that, we analyzed the significance of participation in TIP on retention through a logistic regression. Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
+Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
 
 ## Causal Analysis
 
