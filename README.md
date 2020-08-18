@@ -1,6 +1,6 @@
 # Philadelphia School District Retention
 
-Report using observational data on a teacher intervention
+In experiments where randomization is not feasible, propensity score matching helps to control for confounded relationships. Analysts working in this causal framework often run into a particular issue: sample size affects their ability to arrive at evenly matched samples. This problem is especially prevalent in observational studies which use administrative data. In a project with the Philadelphia School District, we arrive at better percent balance improvement by trimming mis-represented groups.
 
 ## Data Cleaning Notes
 
