@@ -12,24 +12,36 @@ Data kept private due to NDA
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
 
-## Setup
-
-```bash
-# Clone repo
-git clone git@github.com:eugeneyan/deep_rl.git && cd deep_rl
-
-# Create conda environment
-conda env create -f=environment.yml
-
-# Activate environment
-source activate deep_rl
-```
-
-
-
 ## Logistic Regression
 
 Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
+
+
+## Model Code
+
+```bash
+set.seed(1731)
+# trimming the sample
+analysis_data_trimmed <- analysis_data %>%
+  filter(YearsOfService %in% c(0:31, 33,34,35,36,37,39))
+nearest <- matchit(Participated ~
+                     Gender+ Ethnicity + Strata + employeeage+ title_status
+                     ,
+                   family = "binomial",
+                   method = "nearest",
+                   caliper = 0.25,
+                   data = analysis_data_trimmed)
+summary(nearest)
+###plotting these
+plot(nearest)
+nearest_matched <- match.data(nearest)
+#now perform the statistical analysis
+nearest_matched$Participated <- as.factor(nearest_matched$Participated)
+model <- glm(Retained ~ Participated, data = nearest_matched,
+             family = binomial)
+summary(model)
+```
+
 
 ## Causal Analysis
 
