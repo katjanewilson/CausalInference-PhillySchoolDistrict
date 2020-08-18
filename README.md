@@ -12,6 +12,21 @@ Data kept private due to NDA
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
 
+## Setup
+
+```bash
+# Clone repo
+git clone git@github.com:eugeneyan/deep_rl.git && cd deep_rl
+
+# Create conda environment
+conda env create -f=environment.yml
+
+# Activate environment
+source activate deep_rl
+```
+
+
+
 ## Logistic Regression
 
 Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
