@@ -3,8 +3,8 @@ title: "Appendix B"
 author: "Kat Wilson"
 date: "7/28/2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
