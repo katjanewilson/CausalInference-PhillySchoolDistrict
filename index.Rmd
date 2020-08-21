@@ -27,10 +27,13 @@ knitr::include_graphics("images/logo.png")
 
 
 
-#### Data
+## Data
+
+* Data private as per request of School District of Philadelphia
 
 ## Packages
 
+* [Tidyverse](https://cran.r-project.org/web/packages/tidyverse/tidyverse.pdf)
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
 
@@ -67,12 +70,9 @@ model <- glm(Retained ~ Participated, data = nearest_matched,
              family = binomial)
 summary(model)
 ```
-## Logistic Regression
+## Process
 
-Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
-
-## Causal Analysis
-
+* Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
 * We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
 * We spent ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
 * Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
@@ -97,6 +97,494 @@ university-level study, thereby bringing new content to students and increasing 
 * There remains unanswered questions in this domain that the TIP organization can continue to pursue and work to address. Specifically, what are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about the specifics of roles that former teachers are pursuing outside of the classroom role, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
 
 
+
+## Data Cleaning and Visualization
+
+Upon cleaning and merging the TIP data, the final merged TIP data file is used to find summary statistics and compare percentages of completion between TIP participants and non TIP participants. The merged file is brought in from the script, "TIP merge and data clean" which produces one final data set for analysis. For more information on the nature of missing data and the merge, consult the prior script.
+
+The merged TIP data file we use for the below figures and analyses has complete variables for 16,012 teachers, 312 of which participate in TIP, and 15700 who did not participate in TIP. Information on these teachers is collected across an 8 year period, from 2010 through 2018.
+
+In order to evaluate the effectiveness of TIP participation on retention, we first look to get a picture of the average length of time spent in the district by teachers, as well as how retention patterns regularly play out in the Philadelphia school district. 
+
+How long do TIP and non TIP participants stay in teaching profession, on average? Figure 1 breaks down these differences. TIP participation rates are relatively evenly split among four strata of teacher groups. These strata divide teachers into one of four groups, based on how long each teacher has served in the district. 
+
+A majority of teachers have less than 5 years of service in the district. Around 30% of both TIP and non-TIP teachers have been in the school district for 5-15 years. 
+
+Figure 2 breaks down the liklihood of retention for teachers based on their strata. The table sorts teachers by strata to compare how groups of teacher strata differ in retention rates. 
+
+For Strata 1 (less than 5 years), the likelihood of retention is very similar for TIP and non TIP teachers, at around 64%. However, as we move into stratas 2 and 3, then the liklihood of retention increases for TIP teachers. This trend also holds for the final strata, where TIP teachers are more likely to stay in the profession than non-TIP teachers. 
+
+
+```{r chunk1, echo=TRUE, fig.show='hold', message=FALSE, warning=FALSE}
+library(dplyr)
+library(kableExtra)
+library(tidyverse)
+
+#initial missingness changes
+rm(list = ls()) #clear the environment
+
+##remove the year variables out of each
+load("scripts/merged_participation_analysis.Rdata")
+
+#create a new table to work with that has one entry for each De ID
+
+table_part <- merged_participation %>%
+  filter(Participated == 1) %>%
+  select(`Deidentified ID`, Title, Gender, Ethnicity, `Employee Age`, Organization, `Years of Service`, Retained, Strata, Participated) %>%
+    group_by(`Deidentified ID`)
+df.agg <- aggregate(`Employee Age` ~ `Deidentified ID`, table_part, max)
+table_part <- merge(df.agg, table_part)
+save(table_part, file = "data/table_part.Rdata")
+table_nonpart <- merged_participation %>%
+  filter(Participated == 0) %>%
+  select(`Deidentified ID`, Title, Gender, Ethnicity, `Employee Age`, Organization, `Years of Service`, Retained, Strata, Participated)%>%
+    group_by(`Deidentified ID`)
+df.agg <- aggregate(`Employee Age` ~ `Deidentified ID`, table_nonpart, max)
+table_nonpart <- merge(df.agg, table_nonpart)
+save(table_nonpart, file = "data/table_nonpart.Rdata")
+
+#create proportion tables
+table_part_strat <- table_part %>%
+  group_by(Strata) %>%
+  dplyr::summarise(total = n())
+#change to numeric
+table_part_strat$total <- as.numeric(table_part_strat$total)
+#add a new column with total
+table_part_strat <- table_part_strat %>%
+  mutate(overall = colSums(table_part_strat[,2])) %>%
+  mutate(proportion = total/overall) %>%
+  select(Strata, total, proportion) %>%
+  mutate(order = NA)
+
+
+#recode the factors
+table_part_strat$strata <- as.factor(table_part_strat$Strata)
+table_part_strat$strata <- recode_factor(table_part_strat$Strata, `1` = "less than 5", `2` = "5 to less than 10 years", `3` = "10 to 15 years", `4` = "greater than or equal to 15")
+table_part_strat <- table_part_strat %>%
+  arrange(Strata) %>%
+  select(Strata, total, proportion)
+library(scales)
+table_part_strat$proportion <- percent(table_part_strat$proportion)
+
+#print a kable table
+#kable(table_part_strat, "latex", booktabs = T, caption = "Strata Table of Participants") %>%
+ # kable_styling(latex_options = c("repeat_header", "striped", "hover"), font_size = 12, repeat_header_text = "TABLE")
+
+#check length
+#length(unique(table_part$`Deidentified ID`))
+
+#same for non-participants
+table_nonpart_strat <- table_nonpart %>%
+  group_by(Strata) %>%
+  dplyr::summarise(total = n())
+#change to numeric
+table_nonpart_strat$total <- as.numeric(table_nonpart_strat$total)
+#add a new column with total
+table_nonpart_strat <- table_nonpart_strat %>%
+  mutate(overall = colSums(table_nonpart_strat[,2])) %>%
+  mutate(proportion = total/overall) %>%
+  select(Strata, total, proportion) %>%
+  mutate(order = NA)
+#recode the factors
+table_nonpart_strat$Strata <- as.factor(table_nonpart_strat$Strata)
+#levels(table_nonpart_strat$strata)
+table_nonpart_strat$Strata <- recode_factor(table_nonpart_strat$Strata, `1` = "less than 5", `2` = "5 to less than 10 years", `3` = "10 to 15 years", `4` = "greater than or equal to 15")
+table_nonpart_strat <- table_nonpart_strat %>%
+  arrange(Strata) %>%
+  select(Strata, total, proportion)
+library(scales)
+table_nonpart_strat$proportion <- percent(table_nonpart_strat$proportion)
+table_part_strat_2<- table_part_strat %>%
+  rename("Strata of TIP Participants" = `Strata`)
+table_nonpart_strat_2 <- table_nonpart_strat %>%
+  rename("Strata of non Participants" = `Strata`)
+# combined <- bind_cols(table_part_strat_2, table_nonpart_strat_2) %>%
+#   rename("total" = `total1`,
+#          "proportion" = `proportion1`)
+
+#print kable table
+#kable(combined, "latex", booktabs = T, caption = "Strata Comparisons for TIP and non TIP participants") %>%
+#  kable_styling(latex_options = c("repeat_header", "striped", "scale_down"), font_size = 12, repeat_header_text = "TABLE")
+
+
+
+
+```
+
+
+
+```{r chunk100, echo=TRUE, fig.show='hold', message=FALSE, warning=FALSE}
+#create proportion tables
+total_table <- bind_rows(table_nonpart, table_part)
+table_proportions <- total_table %>%
+  group_by(Strata, Retained, Participated) %>%
+  dplyr::summarise(total = n()) %>%
+  spread(key = Retained, value = total) %>%
+  mutate(totals = `0` + `1`) %>%
+  mutate(liklihood_not_retained = `0` / totals) %>%
+  mutate(liklihood_retained = `1` / totals)
+
+##make this proportion table
+#recode the factors
+total_table$strata <- as.factor(total_table$Strata)
+#levels(total_table$strata)
+total_table$strata <- recode_factor(total_table$Strata, `1` = "less than 5", `2` = "5 to less than 10 years", `3` = "10 to 15 years", `4` = "greater than or equal to 15")
+table_proportions <- total_table %>%
+  group_by(Strata, Retained, Participated) %>%
+  dplyr::summarise(total = n()) %>%
+  spread(key = Retained, value = total) %>%
+  mutate(totals = `0` + `1`) %>%
+  mutate(`Likelihood of leaving profession` = `0` / totals) %>%
+  mutate(`Likelihood of retention` = `1` / totals) %>%
+  arrange(Strata)
+library(scales)
+table_proportions$`Likelihood of leaving profession` <- percent(table_proportions$`Likelihood of leaving profession`)
+table_proportions$`Likelihood of retention` <- percent(table_proportions$`Likelihood of retention`)
+table_proportions$totals <- NULL
+# #print kable table
+# kable(table_proportions, "latex", booktabs = T, caption = "Liklihood of Retention") %>%
+#   kable_styling(latex_options = c("repeat_header", "striped", "scale_down"), font_size = 12, repeat_header_text = "TABLE") %>%
+#   column_spec(5:6, width = "4cm")
+
+
+```
+
+```{r chunk3.8, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
+
+
+#append together
+ table_plot <- bind_rows(table_nonpart, table_part)
+
+
+#create proportion tables
+table_proportions <- table_plot %>%
+  filter(Participated == 1) %>%
+  group_by(Strata) %>%
+  dplyr::summarise(total = n())
+#change to numeric
+table_proportions$total <- as.numeric(table_proportions$total)
+#add a new column with total
+table_proportions <- table_proportions %>%
+  mutate(overall = colSums(table_proportions[,2])) %>%
+  mutate(proportion = total/overall) %>%
+  select(Strata, total, proportion) %>%
+  mutate(Participated = 1)
+#nonpart
+table_proportions2 <- table_plot %>%
+  filter(Participated == 0) %>%
+  group_by(Strata) %>%
+  dplyr::summarise(total = n())
+#change to numeric
+table_proportions2$total <- as.numeric(table_proportions2$total)
+#add a new column with total
+table_proportions2 <- table_proportions2 %>%
+  mutate(overall = colSums(table_proportions2[,2])) %>%
+  mutate(proportion = total/overall) %>%
+  select(Strata, total, proportion) %>%
+  mutate(Participated = 0)
+#put together
+plot3data <- bind_rows(table_proportions2, table_proportions) %>%
+  mutate(partic = case_when(Participated == 1 ~"TIP Participants",
+                            Participated == 0 ~ "non TIP Participants"))
+plot3data$'Years of Experience' <- plot3data$Strata
+
+
+plot3 <- ggplot(plot3data, aes(x= Strata, y = `proportion`, fill = Strata)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~partic) +
+  labs(title = "Proportion of Strata by Participation") +
+  labs(fill = "Years of Experience")+
+  ylab("Proportion") +
+  theme(axis.text.x.bottom = element_blank()) +
+  geom_text(size = 3.5,aes(label = percent(`proportion`), vjust = 1.7)) +
+  ylim(0,1)
+
+plot3
+```
+
+
+```{r chunk3.7, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
+
+
+#create proportion tables
+table_proportions <- table_plot %>%
+  group_by(Strata, Retained, Participated) %>%
+  dplyr::summarise(total = n()) %>%
+  spread(key = Retained, value = total) %>%
+  mutate(totals = `0` + `1`) %>%
+  mutate(liklihood_not_retained = `0` / totals) %>%
+  mutate(liklihood_retained = `1` / totals) %>%
+           mutate(partic = case_when(Participated == 1 ~"TIP Participants",
+                            Participated == 0 ~ "non TIP Participants"))
+library(scales)
+
+table_proportions$new <- percent(table_proportions$liklihood_retained)
+
+plot2 <- ggplot(table_proportions, aes(x= Strata, y = as.numeric(`liklihood_retained`), fill = Strata)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~partic) +
+  labs(title = "Liklihood of Retention by Participation and Strata") +
+  ylab("Likelihood of Retention") +
+  theme(axis.text.x.bottom=element_blank()) +
+  geom_text(aes(label = `new`), vjust = 1.6) +
+  ylim(0,1)
+
+plot2
+
+
+```
+
+
+
+```{r chunk3.8.2, eval=FALSE, fig.show='hold', message=FALSE, warning=FALSE, include=FALSE}
+#plot the other one too
+#other way
+rm(list = ls()) #clear the environment
+
+##remove the year variables out of each
+load("scripts/merged_participation_analysis.Rdata")
+
+#first, create a new yeears_service table with variable
+
+#THOSE WHO DID PARTICIPATE
+
+table_1 <- merged_participation
+table_1$`Years of Service` <- as.numeric(table_1$`Years of Service`)
+table_1$`Participated` <- as.numeric(table_1$`Participated`)
+table_1$Retained <- as.numeric(table_1$Retained)
+
+table_try <- table_1 %>%
+  select(`Years of Service`, Retained, Participated) %>%
+  filter(Participated == 1) %>%
+  group_by(`Years of Service`, Retained, Participated) %>%
+  summarise(total_numer = n())
+#new data framee with total sums
+table_1_totals <- table_1 %>%
+  select(`Years of Service`, Retained, Participated) %>%
+  filter(Participated == 1) %>%
+  group_by(`Years of Service`) %>%
+  summarise(total = n ())
+#merge that back with the previous
+table_try <- merge(table_try, table_1_totals)
+#can now do this one of two ways, first by the proportion that was retained, or by the other way
+#later do this by parsing out the two
+table_try_1 <- table_try %>% 
+  mutate(prop = total_numer/total)
+
+table_part <- table_try_1
+
+#THOSE WHO DID NOT PARTICIPATE
+
+#first, create a new yeears_service table with variable
+table_1 <- merged_participation
+table_1$`Years of Service` <- as.numeric(table_1$`Years of Service`)
+table_1$`Participated` <- as.numeric(table_1$`Participated`)
+table_1$Retained <- as.numeric(table_1$Retained)
+
+table_try <- table_1 %>%
+  select(`Years of Service`, Retained, Participated) %>%
+  filter(Participated == 0) %>%
+  group_by(`Years of Service`, Retained, Participated) %>%
+  summarise(total_numer = n())
+#new data framee with total sums
+table_1_totals <- table_1 %>%
+  select(`Years of Service`, Retained, Participated) %>%
+  filter(Participated == 0) %>%
+  group_by(`Years of Service`) %>%
+  summarise(total = n ())
+#merge that back with the previous
+
+table_try <- merge(table_try, table_1_totals)
+
+#can now do this one of two ways, first by the proportion that was retained, or by the other way
+#later do this by parsing out the two
+table_try_1 <- table_try %>% 
+  mutate(prop = total_numer/total)
+table_nonpart <- table_try_1
+
+
+############what is we jsut merged the two tables
+
+tables <- rbind(table_part, table_nonpart)
+tables$Participated[tables$Participated == 1] <- "TIP Participants"
+tables$Participated[tables$Participated == 0] <- "non-TIP Participants"
+
+plot <- ggplot(data = tables, aes(x=`Years of Service`, y = `prop`)) +
+  geom_point(aes(color = as.factor(`Retained`))) +
+  facet_wrap(~`Participated`) +
+  xlab("Years of Service") +
+  ylab("Proportion Retained") +
+  labs(color = "Retained") +
+  ggtitle("Proportion Retention Breakdown") +
+  xlim(0,30)
+  
+plot
+
+
+```
+
+
+
+In order to continue with a statistical analysis, we create an analysis dataset with a row for each Deidentified ID that has all of its unique variables. Recall that the merged_dataset has multiple rows for the same Deidentified ID. For instance, teacher ID #72 may have changed schools over the time we have the data. Or, teacher ID #72 may have changed their title (example: a Special Education teacher moving to a General Education teacher). In order to capture that change, we can come up with a new variable that records the number of times the teacher changed schools, titles, etc.
+
+Variables that change for each ID, such as gender, or school, will be gathered and then re-coded. For instance, the original data set had a unique entry for each year in the data. Here, that is recoded as "total years in TIP data set". Or, some teachers changed gender over the time frame. This is recoded as "number of genders". Or, some teachers changed schools during the time frame. This is recoded as "number of schools".
+
+These new variables, named "number of titles", or "numer of schools", are then merged back with merged_participation, to give us one complete dataset for analysis. Limitations to this approach are discussed later.
+
+We end up with a data set of total of 16012 unique teachers, 312 of whom participanted and 15700 of whom did not participate. An additional note is that the analysis data set here includes a total of 16003 observations, 9 were removed because the variable for Gender was missing.
+
+In choosing the variables to analyze from the analysis dataset, we must make a choice about which variables to choose. For instance, some teachers have more than 1 role, or more than 1 school worked at. In this example code, I simply choose the first observation that appears for that teacher. Since the information is organized by employee age, this is the youngest age at which the teacher started. We can later choose to organize this information differently if need be.
+
+
+```{r chunk4, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
+
+
+#We create a new variable called switch_schools that is 1 if they switched schools or 0 if they stayed at the same school. We do the  same for ethnicity and title, capturing how many times teachers changed these variables
+
+#repeats of schools
+merged_variables_schools_switch <- merged_participation %>%
+  select(Organization, `Deidentified ID`) %>%
+  distinct() %>%
+  arrange(`Deidentified ID`)
+tally_switched_schools <- merged_variables_schools_switch %>%
+  group_by(`Deidentified ID`) %>%
+  tally() %>%
+  mutate("number_of_schools_worked" = n) %>%
+  select(`Deidentified ID`, number_of_schools_worked)
+
+#repeats of ethnicity
+merged_variables_ethnicity_switch <- merged_participation %>%
+  select(Ethnicity, `Deidentified ID`) %>%
+  distinct() %>%
+  arrange(`Deidentified ID`)
+tally_ethnicity_schools <- merged_variables_ethnicity_switch %>%
+  group_by(`Deidentified ID`) %>%
+  tally() %>%
+  mutate("number_of_ethnicities" = n) %>%
+  select(`Deidentified ID`, number_of_ethnicities)
+
+#repeats of gender
+merged_variables_gender_switch <- merged_participation %>%
+  select(Gender, `Deidentified ID`) %>%
+  distinct() %>%
+  arrange(`Deidentified ID`)
+tally_gender_schools <- merged_variables_gender_switch %>%
+  group_by(`Deidentified ID`) %>%
+  tally() %>%
+  mutate("number_of_genders" = n) %>%
+  select(`Deidentified ID`, number_of_genders)
+
+#repeats of titles
+merged_variables_titles_switch <- merged_participation %>%
+  select(Title, `Deidentified ID`) %>%
+  distinct() %>%
+  arrange(`Title`)
+tally_title_schools <- merged_variables_titles_switch %>%
+  group_by(`Deidentified ID`) %>%
+  tally() %>%
+  mutate("number_of_titles" = n) %>%
+  select(`Deidentified ID`, number_of_titles)
+
+merged_participation <- merge(merged_participation, tally_switched_schools, by = "Deidentified ID")
+merged_participation <- merge(merged_participation, tally_gender_schools, by = "Deidentified ID")
+merged_participation <- merge(merged_participation, tally_ethnicity_schools, by = "Deidentified ID")
+merged_participation <- merge(merged_participation, tally_title_schools, by = "Deidentified ID")
+
+
+#from the merged_participation_analysis, we can move forward with regressions and analyses in the next chunks of code, by picking out the variables of interest and choosing "distinct"
+
+
+
+```
+
+
+
+## Logistic Regression Modeling
+
+### Model 1
+
+
+$$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} +... \beta_p{x_p}$$
+The logistic regression model (above) forms the basis for the following statistical tests. Where r is proability of a teacher being retained or not retained, and each x represents a possible predictor, such as gender or years of service in the district, then the model tests the significance of each regression coefficient in predicting the log odds of retention.
+
+First, we test the model using participation in TIP as the predictor and retention as the outcome variable.
+
+
+$$log(r/(1-r)) = \beta_0 + \beta_1{x_1}$$
+
+$$\beta_1 = Participation $$
+
+The output of Model 1 shows that participation in TIP increases the log odds of retention by 0.35. In other words, TIP teachers are 35% more likely to be retained than non-TIP teachers. This value is statistically significant, given that p <.05.
+
+
+```{r chunk5, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
+
+
+#Create a new data frame that chooses teacher status based on the first one in that data set
+
+analysis_data <- merged_participation %>%
+  arrange(`Deidentified ID`, `Employee Age`) %>%
+  group_by(`Deidentified ID`,Strata, Retained, Participated) %>%
+  group_by(`Deidentified ID`) %>%
+  filter(row_number() == 1) #choosing the first row for each Deidentified ID
+
+#recode the levels of strata
+analysis_data$Strata <- as.factor(analysis_data$Strata)
+analysis_data$Strata <- recode_factor(analysis_data$Strata, `1` = "less than 5", `2` = "5 to less than 10 years", `3` = "10 to 15 years", `4` = "greater than or equal to 15")
+#make the other variables factors
+analysis_data$Gender <- as.factor(analysis_data$Gender)
+analysis_data$Ethnicity <- as.factor(analysis_data$Ethnicity)
+analysis_data$`Employee Age` <- as.numeric(analysis_data$`Employee Age`)
+analysis_data$Retained <- as.numeric(analysis_data$Retained)
+analysis_data$Participated <- as.factor(analysis_data$Participated)
+analysis_data$Title <- as.factor(analysis_data$Title)
+
+library(dplyr)
+#for analysis purposes, we next want to find out where missing data are for participants
+#sum(is.na(analysis_data$Gender)) #there are 9 missing values for Gender, so we remove these
+analysis_data <- analysis_data[!is.na(analysis_data$Gender),]
+
+#model1: predicting retention by participation in TIP
+
+logit1 <- glm(Retained ~ Participated, data = analysis_data, family = binomial)
+summary(logit1)
+
+library(pander)
+library(xtable)
+table <- logit1$coefficients
+kable(table)
+
+```
+
+
+
+### Model 2
+
+Next, we test the model controlling for the effects of Gender and Ethnicity. Controlling for ethnicity and participation in TIP, Gender is not a significant predictor of retention. We compared this full model (with the three predictors) against models that only included Gender and Ethnicity, or Participation and Gender, or Participation and Ethnicity, or one of each of the variables. The results from the F test comparing these models indicate that the model with Participation and Gender explains the most variation in Retention Rate, rather than the model with all three predictor variables.
+
+Ethnicity, on the other hand is a significant predictor for 4 of the 8 listed ethnicities. GO ON HERE 
+
+
+
+$$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} + \beta_3{x_3}$$
+
+
+$$log(r/(1-r)) = \beta_0 + \beta_1{x_1}$$
+
+$$\beta_1 = Participation $$
+$$\beta_2 = Gender $$
+$$\beta_3 = Ethnicity $$
+
+```{r chunk5.54, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
+
+logit2 <- glm(Retained ~ Participated  +Ethnicity , data = analysis_data, family = binomial)
+logit2
+summary(logit2)
+table
+kable(table)
+```
+
+## Causal Inference Modeling
 
 
 

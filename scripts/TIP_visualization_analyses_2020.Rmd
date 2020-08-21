@@ -1,9 +1,9 @@
 ---
 title: "Appendix A"
 output:
-  pdf_document: null
   html_document:
     df_print: paged
+  pdf_document: null
   word_document: default
   fig_caption: yes
 ---
@@ -36,7 +36,7 @@ library(tidyverse)
 rm(list = ls()) #clear the environment
 
 ##remove the year variables out of each
-load("data/merged_participation.Rdata")
+load("merged_participation_analysis.Rdata")
 
 #create a new table to work with that has one entry for each De ID
 
@@ -46,14 +46,14 @@ table_part <- merged_participation %>%
     group_by(`Deidentified ID`)
 df.agg <- aggregate(`Employee Age` ~ `Deidentified ID`, table_part, max)
 table_part <- merge(df.agg, table_part)
-save(table_part, file = "data/table_part.Rdata")
+save(table_part, file = "../data/table_part.Rdata")
 table_nonpart <- merged_participation %>%
   filter(Participated == 0) %>%
   select(`Deidentified ID`, Title, Gender, Ethnicity, `Employee Age`, Organization, `Years of Service`, Retained, Strata, Participated)%>%
     group_by(`Deidentified ID`)
 df.agg <- aggregate(`Employee Age` ~ `Deidentified ID`, table_nonpart, max)
 table_nonpart <- merge(df.agg, table_nonpart)
-save(table_nonpart, file = "data/table_nonpart.Rdata")
+save(table_nonpart, file = "../data/table_nonpart.Rdata")
 
 #create proportion tables
 table_part_strat <- table_part %>%
@@ -254,7 +254,7 @@ plot2
 rm(list = ls()) #clear the environment
 
 ##remove the year variables out of each
-load("data/merged_participation.Rdata")
+load("merged_participation_analysis.Rdata")
 
 #first, create a new yeears_service table with variable
 
@@ -355,7 +355,7 @@ In choosing the variables to analyze from the analysis dataset, we must make a c
 rm(list = ls()) #clear the environment
 
 #load in the dataset
-load("data/merged_participation.Rdata")
+load("merged_participation_analysis.Rdata")
 
 #We create a new variable called switch_schools that is 1 if they switched schools or 0 if they stayed at the same school. We do the  same for ethnicity and title, capturing how many times teachers changed these variables
 
@@ -408,8 +408,6 @@ merged_participation <- merge(merged_participation, tally_gender_schools, by = "
 merged_participation <- merge(merged_participation, tally_ethnicity_schools, by = "Deidentified ID")
 merged_participation <- merge(merged_participation, tally_title_schools, by = "Deidentified ID")
 
-#save dataset
-save(merged_participation, file = "data/merged_participation_analysis.Rdata")
 
 #from the merged_participation_analysis, we can move forward with regressions and analyses in the next chunks of code, by picking out the variables of interest and choosing "distinct"
 
@@ -437,9 +435,6 @@ The output of Model 1 shows that participation in TIP increases the log odds of 
 
 ```{r chunk5, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
 
-#use the dataset
-rm(list = ls()) #clear the environment
-load("data/merged_participation_analysis.Rdata")
 
 #Create a new data frame that chooses teacher status based on the first one in that data set
 
