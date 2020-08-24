@@ -25,6 +25,11 @@ output:
 knitr::include_graphics("images/logo.png")
 ```
 
+## Background
+
+The Teachers Institute of Philadelphia (TIP), a University of Pennsylvania-based teacher professional development program, has served the School District of Philadelphia (SDP) since 2006. TIP’s approach is based on the theory that, given the opportunity to grow intellectually and shape their classroom practices, teachers will be more engaged with their work and motivated to do their best—and that this will lead to higher rates of teacher retention and more effective teaching. TIP teachers enroll in a seminar in which they learn new content from an expert in the discipline, develop a curriculum unit that connects that content to their required teaching, and test it the classroom. A key part of this process is the lively exchange of information between colleagues that takes place in the seminar meetings (Kisker, 2011). Fortified with new information, new teaching ideas and the reinforcement that comes from peer exchange, teachers consistently report on institute- administered questionnaires that their morale has been improved: they are more confident in their knowledge of the subjects they teach and in their ability to teach them. They also report that their students are more engaged with their learning.
+
+Based on a study conducted by TIP’s parent institution, the Yale National Initiative to Strengthen Teaching in the Public Schools (YNI), TIP believes that its approach leads to higher retention rates for teachers in urban public schools. Conducted in the New Haven public schools, this study found that Institute fellows were nearly twice as likely to remain in their jobs over a five-year period as demographically similar teachers who were not enrolled in the program. As part of this evaluation, we will replicate the New Haven retention study in Philadelphia, using propensity matching to eliminate the self-selection bias.
 
 
 ## Data
@@ -36,6 +41,18 @@ knitr::include_graphics("images/logo.png")
 * [Tidyverse](https://cran.r-project.org/web/packages/tidyverse/tidyverse.pdf)
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
+## Takeaways
+
+
+* Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
+* We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
+* We spent ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
+* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
+that we only include TIP teachers with Years of experience that are matched in the other sample of non-TIP teachers.
+* Teacher
+retention is a much studied topic , and programs like TIP, which enable teachers to pursue
+university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that “intellectual engagement” is certainly as important as “purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by this intellectual engagement that the program offers.
+* There remains unanswered questions in this domain that the TIP organization can continue to pursue and work to address. Specifically, what are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about the specifics of roles that former teachers are pursuing outside of the classroom role, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
 
 </div>
 <div class="col-sm-6">
@@ -70,50 +87,36 @@ model <- glm(Retained ~ Participated, data = nearest_matched,
              family = binomial)
 summary(model)
 ```
-## Process
-
-* Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
-* We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
-* We spent ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
-* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
-that we only include TIP teachers with Years of experience that are matched in the other sample of non-TIP teachers.
-
-
-
-
-
-```{r, out.width=300, echo=F}
-knitr::include_graphics("images/philly.png")
-```
-
-
-
-
-## Takeaways
-
-* Teacher
-retention is a much studied topic , and programs like TIP, which enable teachers to pursue
-university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that “intellectual engagement” is certainly as important as “purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by this intellectual engagement that the program offers.
-* There remains unanswered questions in this domain that the TIP organization can continue to pursue and work to address. Specifically, what are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about the specifics of roles that former teachers are pursuing outside of the classroom role, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
-
-
 
 ## Data Cleaning and Visualization
+The initial data set consisted of 16,013 unique, 7,014 of whom we have information on exiting
+the school system. A total of 356 unique teachers who participated in TIP. After checking for
+missing data, 4 observations in teacher exits were coded as duplicates, and 2 observations in the
+TIP participation variables set were duplicates. Of the demographic variables, 43 observations
+were NA (missing). Of the total teachers set, 32 observations were NA. After removing the NA
+values, the analytic file included 16,005 unique teachers.
+Upon merging the datasets, it became apparent that some unique teacher IDs were present in
+certain datasets but missing from others. Specifically, using the anti-merge function in our code,
+we can see the observations that are included in the information on exits but not in the
+information on total teachers. There are 1,067 teachers who exited, and who were also missing
+from the total teachers data. We removed these missing values from the merge of teacher exits
+with the total teachers.
+We proceeded to merge the deidentified TIP IDs with the complete teachers file. Of the TIP
+participants, 44 unique teachers were missing from the total teachers set. This brings our final
+number of unique teachers who participated in TIP (with complete covariate information) down
+from 358 to 314. After removing two duplicates, the final number of unique TIP participants in
+the dataset is 312.
+In the descriptive statistics and statistical analyses below, we use a final analytic file that consists
+of 16,005 teachers, of which 312 participated in TIP. This information is based on the 8-year
+period from 2010 – 2018. 
 
-Upon cleaning and merging the TIP data, the final merged TIP data file is used to find summary statistics and compare percentages of completion between TIP participants and non TIP participants. The merged file is brought in from the script, "TIP merge and data clean" which produces one final data set for analysis. For more information on the nature of missing data and the merge, consult the prior script.
-
-The merged TIP data file we use for the below figures and analyses has complete variables for 16,012 teachers, 312 of which participate in TIP, and 15700 who did not participate in TIP. Information on these teachers is collected across an 8 year period, from 2010 through 2018.
-
-In order to evaluate the effectiveness of TIP participation on retention, we first look to get a picture of the average length of time spent in the district by teachers, as well as how retention patterns regularly play out in the Philadelphia school district. 
-
-How long do TIP and non TIP participants stay in teaching profession, on average? Figure 1 breaks down these differences. TIP participation rates are relatively evenly split among four strata of teacher groups. These strata divide teachers into one of four groups, based on how long each teacher has served in the district. 
-
-A majority of teachers have less than 5 years of service in the district. Around 30% of both TIP and non-TIP teachers have been in the school district for 5-15 years. 
-
-Figure 2 breaks down the liklihood of retention for teachers based on their strata. The table sorts teachers by strata to compare how groups of teacher strata differ in retention rates. 
-
-For Strata 1 (less than 5 years), the likelihood of retention is very similar for TIP and non TIP teachers, at around 64%. However, as we move into stratas 2 and 3, then the liklihood of retention increases for TIP teachers. This trend also holds for the final strata, where TIP teachers are more likely to stay in the profession than non-TIP teachers. 
-
+For each teacher in the dataset, we created the indicator variable, “Participated,” that equals 1 for
+a TIP participant and 0 otherwise. The outcome variable of interest is the binary indicator,
+“Retained,” which is equal to 1 if the teacher remained in SDP for the duration of the study
+period and 0 otherwise. Additionally, we created variables that tracked the number of times a
+teacher changed schools, changed titles, etc., but remained within SDP. Because there were 9
+observations with missing gender information, the following statistical models were run on a
+sample of 16,003 teachers, of whom 312 participated in TIP.
 
 ```{r chunk1, echo=TRUE, fig.show='hold', message=FALSE, warning=FALSE}
 library(dplyr)
@@ -424,6 +427,15 @@ plot
 ```
 
 
+In the first report (presented in January), we sorted teachers alphabetically, and thus their years
+of service was the first year in the dataset. In this report, we use the maximum years in the
+dataset as an indicator of the years spent and the maximum age of the teacher in the dataset. To
+keep in line with the analyses results, the descriptive statistics for these maximum ages are
+presented here. The proportions are relatively similar to the proportions in the original analysis, 
+3
+with a relatively even split of strata among tip and non-TIP participants. Likewise, teachers with
+less than 5 years of experience are less likely to be retained, among both TIP and non-TIP
+groups.
 
 In order to continue with a statistical analysis, we create an analysis dataset with a row for each Deidentified ID that has all of its unique variables. Recall that the merged_dataset has multiple rows for the same Deidentified ID. For instance, teacher ID #72 may have changed schools over the time we have the data. Or, teacher ID #72 may have changed their title (example: a Special Education teacher moving to a General Education teacher). In order to capture that change, we can come up with a new variable that records the number of times the teacher changed schools, titles, etc.
 
@@ -434,6 +446,16 @@ These new variables, named "number of titles", or "numer of schools", are then m
 We end up with a data set of total of 16012 unique teachers, 312 of whom participanted and 15700 of whom did not participate. An additional note is that the analysis data set here includes a total of 16003 observations, 9 were removed because the variable for Gender was missing.
 
 In choosing the variables to analyze from the analysis dataset, we must make a choice about which variables to choose. For instance, some teachers have more than 1 role, or more than 1 school worked at. In this example code, I simply choose the first observation that appears for that teacher. Since the information is organized by employee age, this is the youngest age at which the teacher started. We can later choose to organize this information differently if need be.
+
+## Logistic Regression
+
+Phase 1 began with a visualization and descriptive analysis of the breakdown of teacher strata
+and retention. After that, we analyzed the significance of participation in TIP on retention
+through a logistic regression. Participating in TIP is associated with an increase in the log odd
+likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP
+was associated with a .35 increase in retention.
+Certain ethnicities, when ethnicity is added as a second predictor, are also associated with
+increases in likelihood of retention.
 
 
 ```{r chunk4, echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE}
@@ -497,10 +519,6 @@ merged_participation <- merge(merged_participation, tally_title_schools, by = "D
 
 ```
 
-
-
-## Logistic Regression Modeling
-
 ### Model 1
 
 
@@ -557,16 +575,17 @@ kable(table)
 ```
 
 
-
 ### Model 2
 
-Next, we test the model controlling for the effects of Gender and Ethnicity. Controlling for ethnicity and participation in TIP, Gender is not a significant predictor of retention. We compared this full model (with the three predictors) against models that only included Gender and Ethnicity, or Participation and Gender, or Participation and Ethnicity, or one of each of the variables. The results from the F test comparing these models indicate that the model with Participation and Gender explains the most variation in Retention Rate, rather than the model with all three predictor variables.
+Model 2. Does the effect of TIP on the log odds of retention differ when controlling for gender
+and ethnicity?
+In this analysis, we extended Model 1 by controlling for the effects of Gender and Ethnicity.
+However, we found (results not shown) that Gender was not statistically significant in predicting
+the log odds of retention and so the results for Model 2 below are only given for Ethnicity.
 
-Ethnicity, on the other hand is a significant predictor for 4 of the 8 listed ethnicities. GO ON HERE 
 
 
-
-$$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} + \beta_3{x_3}$$
+$$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} $$
 
 
 $$log(r/(1-r)) = \beta_0 + \beta_1{x_1}$$
@@ -584,7 +603,64 @@ table
 kable(table)
 ```
 
-## Causal Inference Modeling
+In the table above, the reference ethnicity group (intercept term) refers to teachers who identified
+as African-American. As a result, all coefficients for the ethnicity variables are comparisons
+between the specified ethnicity group and African-American teachers. The table above shows
+that, among African-American teachers, participating in TIP improved their log odds of retention
+by a factor of 0.349 on the log odds scale.
+Among the other ethnicity groups, the coefficients associated with Caucasian and Latina teachers
+are also statistically significant. Interestingly, for Caucasian teachers who participated in TIP, the
+log odds of retention are actually lower compared to non-TIP African-American teachers. This is
+seen by the -0.097 coefficient. On the other hand, the log odds is higher among Latina TIP
+participants compared to the reference group of non-TIP African-American teachers. 
+
+
+
+## Causal Analysis
+
+In Phase 1 of the analysis, teachers who participated in TIP were more likely to be retained.
+Additionally, the effect of participation may have been larger for some groups. For instance, the
+effect of TIP on retention was significantly higher for teachers who identified as African
+American or Latinx, and lower for teachers who identified as Caucasian. On the other hand, prior
+years of experience and gender were not significant.
+The logistic regression in Phase 1 performs well as a classification method in predicting which
+teachers will be retained based on participation in TIP. The logistic regression also allows us to
+explore associative relationships among variables related to retention. However, the logistic
+regression is limited in its ability to express a causal relationship between participating in TIP
+and retention.
+In Phase 2, we add rigor to the logistic regression by asking if there is a causal relationship
+between participation in TIP and retention. We match teachers based on available and measured
+covariates, such as years in the classroom, gender, or title (classroom teacher or administration).
+By matching, we reduce the chance that these factors (whether or not the teacher is a male or
+female, for instance) explain retention. Instead, the variable of causal interest (whether or not the
+teacher participated in the intervention) is isolated.
+We spent ample time exploring the differences in groups for each measured covariates, since the
+goal of balancing will depend on the raw differences in the sample size representation of each of
+these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP
+teachers. The impacts of each covariate on the percent balance improvement among TIP and
+non-TIP teachers was considered, and in the end we chose to trim the sample to include only the
+ages of teachers who participated in TIP.
+To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not
+represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples
+are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is
+teacher retention, then an important confounder of staying in the classroom is age of the teacher.
+Therefore, matching on age without taking into account these non-representative ages may affect
+the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating
+teachers were not matched in the age of the TIP participating teachers.
+Trimming the sample has the effect of improving percent balance improvement for Gender and
+the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance
+improvement. Appendix A includes the original matching model with all covariates included,
+and describes how the percent balance improvement informed the selection of covariates in our
+final matching model, presented below. This final model includes the trimmed TIP sample so 
+9
+that we only include TIP teachers with Years of experience that are matched in the other sample
+of non-TIP teachers.
+
+```{r, out.width=300, echo=F}
+knitr::include_graphics("images/philly.png")
+```
+
+
 
 
 
@@ -783,14 +859,12 @@ analysis_data %>%
 
 ####  Matching Model 1
 
-You can also embed plots, for example:
 
 ```{r pressure, echo=TRUE}
 
 ### Matching 1- All covariates in the matching model
 ##set seed
 set.seed(1731)
-class(analysis_data$Strata)
 analysis_data$Gender <- as.factor(analysis_data$Gender)
 analysis_data$employeeage <- as.numeric(analysis_data$`Employee Age`)
 analysis_data$title_status <- as.factor(analysis_data$title_status)
