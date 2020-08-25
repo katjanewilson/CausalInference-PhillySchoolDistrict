@@ -44,14 +44,14 @@ Based on a study conducted by TIP’s parent institution, the Yale National Init
 ## Takeaways
 
 
-* Participating in TIP is associated with an increase in the log odd likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP was associated with a .35 increase in retention.
+* Participating in TIP is associated with an increase in the log odd likelihood of retention.
 * We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
-* We spent ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
+* We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
 * Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
 that we only include TIP teachers with Years of experience that are matched in the other sample of non-TIP teachers.
 * Teacher
 retention is a much studied topic , and programs like TIP, which enable teachers to pursue
-university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that “intellectual engagement” is certainly as important as “purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by this intellectual engagement that the program offers.
+university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that “intellectual engagement” is certainly as important as “purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by the intellectual engagement that the program offers.
 * There remains unanswered questions in this domain that the TIP organization can continue to pursue and work to address. Specifically, what are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about the specifics of roles that former teachers are pursuing outside of the classroom role, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
 
 </div>
@@ -432,7 +432,6 @@ of service was the first year in the dataset. In this report, we use the maximum
 dataset as an indicator of the years spent and the maximum age of the teacher in the dataset. To
 keep in line with the analyses results, the descriptive statistics for these maximum ages are
 presented here. The proportions are relatively similar to the proportions in the original analysis, 
-3
 with a relatively even split of strata among tip and non-TIP participants. Likewise, teachers with
 less than 5 years of experience are less likely to be retained, among both TIP and non-TIP
 groups.
@@ -441,9 +440,7 @@ In order to continue with a statistical analysis, we create an analysis dataset 
 
 Variables that change for each ID, such as gender, or school, will be gathered and then re-coded. For instance, the original data set had a unique entry for each year in the data. Here, that is recoded as "total years in TIP data set". Or, some teachers changed gender over the time frame. This is recoded as "number of genders". Or, some teachers changed schools during the time frame. This is recoded as "number of schools".
 
-These new variables, named "number of titles", or "numer of schools", are then merged back with merged_participation, to give us one complete dataset for analysis. Limitations to this approach are discussed later.
-
-We end up with a data set of total of 16012 unique teachers, 312 of whom participanted and 15700 of whom did not participate. An additional note is that the analysis data set here includes a total of 16003 observations, 9 were removed because the variable for Gender was missing.
+These new variables, named "number of titles", or "numer of schools", are then merged back with merged_participation, to give us one complete dataset for analysis. Limitations to this approach are discussed later.bWe end up with a data set of total of 16012 unique teachers, 312 of whom participanted and 15700 of whom did not participate. An additional note is that the analysis data set here includes a total of 16003 observations, 9 were removed because the variable for Gender was missing.
 
 In choosing the variables to analyze from the analysis dataset, we must make a choice about which variables to choose. For instance, some teachers have more than 1 role, or more than 1 school worked at. In this example code, I simply choose the first observation that appears for that teacher. Since the information is organized by employee age, this is the youngest age at which the teacher started. We can later choose to organize this information differently if need be.
 
@@ -579,11 +576,6 @@ kable(table)
 
 Model 2. Does the effect of TIP on the log odds of retention differ when controlling for gender
 and ethnicity?
-In this analysis, we extended Model 1 by controlling for the effects of Gender and Ethnicity.
-However, we found (results not shown) that Gender was not statistically significant in predicting
-the log odds of retention and so the results for Model 2 below are only given for Ethnicity.
-
-
 
 $$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} $$
 
@@ -652,7 +644,6 @@ the other category of Ethnicity. In fact, all of the variables now have sufficie
 improvement. Appendix A includes the original matching model with all covariates included,
 and describes how the percent balance improvement informed the selection of covariates in our
 final matching model, presented below. This final model includes the trimmed TIP sample so 
-9
 that we only include TIP teachers with Years of experience that are matched in the other sample
 of non-TIP teachers.
 
@@ -895,9 +886,8 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 ####  Trimming
 
-Trim the non TIP sample so that it is only tip in terms of Years of Experience.
-There are no 32 years olds, 38 year olds, or 40 or older TIP teachers. However, these
-grouped ARE represented in the non-TIP sample.
+Trim the non TIP sample so that it is only tip in terms of Years of Experience. 32 years olds, 38 year olds, and 40 or older are missing from the TIP teacher group. However, these
+groups ARE represented in the non-TIP sample.
 
 
 ```{r pressure2, echo=TRUE}
@@ -929,7 +919,7 @@ summary(model)
 
 ####  Coursen the Ethnicity Variable
 
-Coursen the Ethnicity variable. Match it by Caucasian and non-Caucasian
+Coursen the Ethnicity variable. Match by Caucasian and non-Caucasian
 
 
 ```{r pressure3, echo=TRUE}
@@ -963,7 +953,7 @@ table(analysis_data$Age, analysis_data$Caucasian_binary)
 
 ####  Coursen the Ethnicity Variable and use with the trimmed data
 
-Coursen the Ethnicity variable. Match it by Caucasian and non-Caucasian
+Coursen the Ethnicity variable. Match it Caucasian and non-Caucasian
 
 
 ```{r pressure4, echo=TRUE}
