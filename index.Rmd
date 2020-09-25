@@ -44,7 +44,7 @@ Based on a study conducted by TIP’s parent institution, the Yale National Init
 
 
 * Participating in TIP is associated with an increase in the log odd likelihood of retention.
-* We match teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
+* We matched teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
 * We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
 * Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
 that we only include TIP teachers with Years of experience that are matched in the other sample of non-TIP teachers.
@@ -109,13 +109,6 @@ In the descriptive statistics and statistical analyses below, we use a final ana
 of 16,005 teachers, of which 312 participated in TIP. This information is based on the 8-year
 period from 2010 – 2018. 
 
-For each teacher in the dataset, we created the indicator variable, “Participated,” that equals 1 for
-a TIP participant and 0 otherwise. The outcome variable of interest is the binary indicator,
-“Retained,” which is equal to 1 if the teacher remained in SDP for the duration of the study
-period and 0 otherwise. Additionally, we created variables that tracked the number of times a
-teacher changed schools, changed titles, etc., but remained within SDP. Because there were 9
-observations with missing gender information, the following statistical models were run on a
-sample of 16,003 teachers, of whom 312 participated in TIP.
 
 ```{r chunk1, echo=TRUE, fig.show='hold', message=FALSE, warning=FALSE}
 library(dplyr)
@@ -426,30 +419,17 @@ plot
 ```
 
 
-In the first report (presented in January), we sorted teachers alphabetically, and thus their years
-of service was the first year in the dataset. In this report, we use the maximum years in the
-dataset as an indicator of the years spent and the maximum age of the teacher in the dataset. To
-keep in line with the analyses results, the descriptive statistics for these maximum ages are
-presented here. The proportions are relatively similar to the proportions in the original analysis, 
-with a relatively even split of strata among tip and non-TIP participants. Likewise, teachers with
-less than 5 years of experience are less likely to be retained, among both TIP and non-TIP
-groups.
-
 In order to continue with a statistical analysis, we create an analysis dataset with a row for each Deidentified ID that has all of its unique variables. Recall that the merged_dataset has multiple rows for the same Deidentified ID. For instance, teacher ID #72 may have changed schools over the time we have the data. Or, teacher ID #72 may have changed their title (example: a Special Education teacher moving to a General Education teacher). In order to capture that change, we can come up with a new variable that records the number of times the teacher changed schools, titles, etc.
 
 Variables that change for each ID, such as gender, or school, will be gathered and then re-coded. For instance, the original data set had a unique entry for each year in the data. Here, that is recoded as "total years in TIP data set". Or, some teachers changed gender over the time frame. This is recoded as "number of genders". Or, some teachers changed schools during the time frame. This is recoded as "number of schools".
-
-These new variables, named "number of titles", or "numer of schools", are then merged back with merged_participation, to give us one complete dataset for analysis. Limitations to this approach are discussed later.bWe end up with a data set of total of 16012 unique teachers, 312 of whom participanted and 15700 of whom did not participate. An additional note is that the analysis data set here includes a total of 16003 observations, 9 were removed because the variable for Gender was missing.
-
-In choosing the variables to analyze from the analysis dataset, we must make a choice about which variables to choose. For instance, some teachers have more than 1 role, or more than 1 school worked at. In this example code, I simply choose the first observation that appears for that teacher. Since the information is organized by employee age, this is the youngest age at which the teacher started. We can later choose to organize this information differently if need be.
 
 ## Logistic Regression
 
 Phase 1 began with a visualization and descriptive analysis of the breakdown of teacher strata
 and retention. After that, we analyzed the significance of participation in TIP on retention
 through a logistic regression. Participating in TIP is associated with an increase in the log odd
-likelihood of retention. Specifically, the coefficient was .35, meaning that participating in TIP
-was associated with a .35 increase in retention.
+likelihood of retention. Specifically, participating in TIP
+was associated with a .35 increase in the log odds of retention.
 Certain ethnicities, when ethnicity is added as a second predictor, are also associated with
 increases in likelihood of retention.
 
@@ -521,7 +501,6 @@ merged_participation <- merge(merged_participation, tally_title_schools, by = "D
 $$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} +... \beta_p{x_p}$$
 The logistic regression model (above) forms the basis for the following statistical tests. Where r is proability of a teacher being retained or not retained, and each x represents a possible predictor, such as gender or years of service in the district, then the model tests the significance of each regression coefficient in predicting the log odds of retention.
 
-First, we test the model using participation in TIP as the predictor and retention as the outcome variable.
 
 
 $$log(r/(1-r)) = \beta_0 + \beta_1{x_1}$$
