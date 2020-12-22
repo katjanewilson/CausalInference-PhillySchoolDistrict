@@ -19,11 +19,6 @@ Sample of a 2020 project with Yale National Initiative to Strengthen Teaching in
 ---
 
 
-
-```{r, out.width=600, echo=F}
-knitr::include_graphics("images/logo.png")
-```
-
 ## Background
 
 The Teachers Institute of Philadelphia (TIP), a University of Pennsylvania-based teacher professional development program, has served the School District of Philadelphia (SDP) since 2006. TIP’s approach is based on the theory that, given the opportunity to grow intellectually and shape their classroom practices, teachers will be more engaged with their work and motivated to do their best—and that this will lead to higher rates of teacher retention and more effective teaching. TIP teachers enroll in a seminar in which they learn new content from an expert in the discipline, develop a curriculum unit that connects that content to their required teaching, and test it the classroom. A key part of this process is the lively exchange of information between colleagues that takes place in the seminar meetings (Kisker, 2011). Fortified with new information, new teaching ideas and the reinforcement that comes from peer exchange, teachers consistently report on institute- administered questionnaires that their morale has been improved: they are more confident in their knowledge of the subjects they teach and in their ability to teach them. They also report that their students are more engaged with their learning.
@@ -45,14 +40,8 @@ Based on a study conducted by TIP’s parent institution, the Yale National Init
 
 * Participating in TIP is associated with an increase in the log odd likelihood of retention.
 * We matched teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
-* We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. Appendix A includes differences in covariate groups among TIP and non-TIP teachers. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
-* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement. Appendix A includes the original matching model with all covariates included, and describes how the percent balance improvement informed the selection of covariates in our final matching model, presented below. This final model includes the trimmed TIP sample so
-that we only include TIP teachers with Years of experience that are matched in the other sample of non-TIP teachers.
-* Teacher
-retention is a much studied topic , and programs like TIP, which enable teachers to pursue
-university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that “intellectual engagement” is certainly as important as “purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by the intellectual engagement that the program offers.
-* There remains unanswered questions in this domain that the TIP organization can continue to pursue and work to address. Specifically, what are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about the specifics of roles that former teachers are pursuing outside of the classroom role, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
-
+* We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
+* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement in the final model.
 </div>
 <div class="col-sm-6">
 
@@ -625,10 +614,6 @@ final matching model, presented below. This final model includes the trimmed TIP
 that we only include TIP teachers with Years of experience that are matched in the other sample
 of non-TIP teachers.
 
-```{r, out.width=300, echo=F}
-knitr::include_graphics("images/philly.png")
-```
-
 
 
 
@@ -960,89 +945,10 @@ summary(model)
 
 
 
-####  Assocation of Ethnicity and Strata
 
+## Future Considerations
+* Teacher
+retention is a much studied topic , and programs like TIP, which enable teachers to pursue
+university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that intellectual engagement is certainly as important as "purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by the intellectual engagement that the program offers.
+* What are the outcomes of teachers who do leave the district, after participating in TIP? Our study was limited to a binary variable of retained or not retained. This lacks a very important other possibility, which is that teachers left their role in SDP to pursue other intellectually engaging and purpose driven opportunities, such as a doctorate in education or starting their own computer programming boot-camp for minority students in Philadelphia. It is hard to argue that these teachers are contributing to educational inequity by leaving their classroom positions. TIP can continue to reach out to teachers who leave to learn qualitatively about roles that former teachers choose to pursue, and whether or not participating in TIP actually encouraged them to seek these roles that are equally as influential as the work of a classroom teacher.
 
-```{r pressure5, echo=TRUE}
-
-ethnicity_strata <- analysis_data %>%
-  group_by(Ethnicity, Strata) %>%
-  summarise(n =n())
-ethnicity_strata_spread <- spread(ethnicity_strata, key = "Strata", value = "n")
-class(ethnicity_strata_spread$`less than 5`)
-ethnicity_strata_spread <- ethnicity_strata_spread %>%
-  mutate(total = `less than 5` + `5 to less than 10 years`+
-           `10 to 15 years` +`greater than or equal to 15`) %>%
-  mutate(percent_less_than5= `less than 5`/total,
-         percent_5_to_10 = `5 to less than 10 years`/total,
-         percent_10_15 = `10 to 15 years`/total,
-         percent_greater_15 = `greater than or equal to 15`/total)
-ethnicity_strata_spread <- ethnicity_strata_spread %>%
-  select(Ethnicity, percent_less_than5, percent_5_to_10,
-         percent_10_15, percent_greater_15)
-library(scales)
-ethnicity_strata_spread$percent_less_than5 <- percent(ethnicity_strata_spread$percent_less_than5)
-ethnicity_strata_spread$percent_5_to_10 <- percent(ethnicity_strata_spread$percent_5_to_10)
-ethnicity_strata_spread$percent_10_15 <- percent(ethnicity_strata_spread$percent_10_15)
-ethnicity_strata_spread$percent_greater_15 <- percent(ethnicity_strata_spread$percent_greater_15)
-ethnicity_strata_spread
-
-
-ethnicity_strata <- analysis_data %>%
-  group_by(Ethnicity, Strata)
-ggplot(ethnicity_strata, aes(x = Ethnicity, y = YearsOfService)) +
-  geom_boxplot() +
-  facet_wrap(~Strata)
-```
-
-
-
-#### Assocation of Ethnicity and Age
-
-
-```{r pressure6, echo=TRUE}
-
-ethnicity_age <- analysis_data %>%
-  group_by(Ethnicity, Age) %>%
-  summarise(n =n())
-
-ethnicity_age_spread <- spread(ethnicity_age, key = "Age", value = "n")
-class(ethnicity_age_spread$`less than 5`)
-ethnicity_age_spread <- ethnicity_age_spread %>%
-  mutate(total = `20s` + `30s`+
-           `40s` +`50s` +`60s`+`70s`) %>%
-  mutate(percent_20s= `20s`/total,
-         percent_30s = `30s`/total,
-         percent_40s = `40s`/total,
-         percent_50s = `50s`/total, 
-         percent_60s = `60s`/total,
-         percent_70s = `70s`/total)
-ethnicity_strata_spread <- ethnicity_age_spread %>%
-  select(percent_20s, percent_30s, percent_40s, percent_50s,
-         percent_60s, percent_70s)
-library(scales)
-ethnicity_age_spread$percent_20s <- percent(ethnicity_age_spread$percent_20s)
-ethnicity_age_spread$percent_30s <- percent(ethnicity_age_spread$percent_30s)
-ethnicity_age_spread$percent_40s <- percent(ethnicity_age_spread$percent_40s)
-ethnicity_age_spread$percent_50s <- percent(ethnicity_age_spread$percent_50s)
-ethnicity_age_spread$percent_60s <- percent(ethnicity_age_spread$percent_60s)
-ethnicity_age_spread$percent_70s <- percent(ethnicity_age_spread$percent_70s)
-ethnicity_age_spread
-
-```
-
-
-
-#### Assocation of nonWhite and Age
-
-
-```{r pressure7, echo=TRUE}
-
-caucasian_binary_age <- analysis_data %>%
-  group_by(Caucasian_binary, Age) %>%
-  summarise(n =n())
-
-caucasian_binary_age_spread <- spread(caucasian_binary_age, key = "Age", value = "n")
-caucasian_binary_age_spread
-
-```
