@@ -1,47 +1,41 @@
 ---
-title: ''
+title: ""
 output:
   html_document:
-    toc: yes
+    toc: no
     toc_float: yes
     collapsed: no
     number_sections: no
-    toc_depth: 4
+    toc_depth: 3
+    css: front.css
   pdf_document:
     toc: yes
     toc_depth: '4'
 ---
 
-## Overview
+
+## Philadelphia Public Schools {.tabset}
+
+### Overview
 
 Sample of a 2020 project with Yale National Initiative to Strengthen Teaching in the Public Schools (YNI)
 
----
-
-
-## Background
+Background
 
 The Teachers Institute of Philadelphia (TIP), a University of Pennsylvania-based teacher professional development program, has served the School District of Philadelphia (SDP) since 2006. TIP’s approach is based on the theory that, given the opportunity to grow intellectually and shape their classroom practices, teachers will be more engaged with their work and motivated to do their best—and that this will lead to higher rates of teacher retention and more effective teaching. TIP teachers enroll in a seminar in which they learn new content from an expert in the discipline, develop a curriculum unit that connects that content to their required teaching, and test it the classroom. A key part of this process is the lively exchange of information between colleagues that takes place in the seminar meetings (Kisker, 2011). Fortified with new information, new teaching ideas and the reinforcement that comes from peer exchange, teachers consistently report on institute- administered questionnaires that their morale has been improved: they are more confident in their knowledge of the subjects they teach and in their ability to teach them. They also report that their students are more engaged with their learning.
 
 Based on a study conducted by TIP’s parent institution, the Yale National Initiative to Strengthen Teaching in the Public Schools (YNI), TIP believes that its approach leads to higher retention rates for teachers in urban public schools. Conducted in the New Haven public schools, this study found that Institute fellows were nearly twice as likely to remain in their jobs over a five-year period as demographically similar teachers who were not enrolled in the program. As part of this evaluation, we will replicate the New Haven retention study in Philadelphia, using propensity matching to eliminate the self-selection bias.
 
 
-## Data
+### Data
 
 * Data private as per request of School District of Philadelphia
 
-## Packages
+Packages
 
 * [Tidyverse](https://cran.r-project.org/web/packages/tidyverse/tidyverse.pdf)
 * [MatchIt](https://cran.r-project.org/web/packages/MatchIt/index.html)
 
-## Takeaways
-
-
-* Participating in TIP is associated with an increase in the log odd likelihood of retention.
-* We matched teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
-* We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
-* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement in the final model.
 </div>
 <div class="col-sm-6">
 
@@ -76,7 +70,7 @@ model <- glm(Retained ~ Participated, data = nearest_matched,
 summary(model)
 ```
 
-## Data Cleaning and Visualization
+### Data Cleaning and Visualization
 The initial data set consisted of 16,013 unique, 7,014 of whom we have information on exiting
 the school system. A total of 356 unique teachers who participated in TIP. After checking for
 missing data, 4 observations in teacher exits were coded as duplicates, and 2 observations in the
@@ -412,7 +406,7 @@ In order to continue with a statistical analysis, we create an analysis dataset 
 
 Variables that change for each ID, such as gender, or school, will be gathered and then re-coded. For instance, the original data set had a unique entry for each year in the data. Here, that is recoded as "total years in TIP data set". Or, some teachers changed gender over the time frame. This is recoded as "number of genders". Or, some teachers changed schools during the time frame. This is recoded as "number of schools".
 
-## Logistic Regression
+### Logistic Regression
 
 Phase 1 began with a visualization and descriptive analysis of the breakdown of teacher strata
 and retention. After that, we analyzed the significance of participation in TIP on retention
@@ -484,7 +478,7 @@ merged_participation <- merge(merged_participation, tally_title_schools, by = "D
 
 ```
 
-### Model 1
+Model 1
 
 
 $$log(r/(1-r)) = \beta_0 + \beta_1{x_1} + \beta_2{x_2} +... \beta_p{x_p}$$
@@ -539,7 +533,7 @@ kable(table)
 ```
 
 
-### Model 2
+Model 2
 
 Model 2. Does the effect of TIP on the log odds of retention differ when controlling for gender
 and ethnicity?
@@ -575,7 +569,7 @@ participants compared to the reference group of non-TIP African-American teacher
 
 
 
-## Causal Analysis
+### Causal Analysis
 
 In Phase 1 of the analysis, teachers who participated in TIP were more likely to be retained.
 Additionally, the effect of participation may have been larger for some groups. For instance, the
@@ -810,10 +804,6 @@ analysis_data %>%
 
 ```
 
-
-####  Matching Model 1
-
-
 ```{r pressure, echo=TRUE}
 
 ### Matching 1- All covariates in the matching model
@@ -847,8 +837,6 @@ summary(model)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 
-####  Trimming
-
 Trim the non TIP sample so that it is only tip in terms of Years of Experience. 32 years olds, 38 year olds, and 40 or older are missing from the TIP teacher group. However, these
 groups ARE represented in the non-TIP sample.
 
@@ -880,7 +868,7 @@ summary(model)
 
 
 
-####  Coursen the Ethnicity Variable
+Coursen the Ethnicity Variable
 
 Coursen the Ethnicity variable. Match by Caucasian and non-Caucasian
 
@@ -912,13 +900,6 @@ table(analysis_data$Age, analysis_data$Caucasian_binary)
 ```
 
 
-
-
-####  Coursen the Ethnicity Variable and use with the trimmed data
-
-Coursen the Ethnicity variable. Match it Caucasian and non-Caucasian
-
-
 ```{r pressure4, echo=TRUE}
 analysis_data_trimmed <- analysis_data_trimmed %>%
   mutate(Caucasian_binary = ifelse(Ethnicity == "CAUCASIAN", 1, 0))
@@ -946,7 +927,15 @@ summary(model)
 
 
 
-## Future Considerations
+### Future Directions
+
+Main Takeaways:
+* Participating in TIP is associated with an increase in the log odd likelihood of retention.
+* We matched teachers based on available and measured covariates, such as years in the classroom, gender, or title (classroom teacher or administration). By matching, we reduce the chance that these factors (whether or not the teacher is a male or female, for instance) explain retention. Instead, the variable of causal interest (whether or not the teacher participated in the intervention) is isolated.
+* We spend ample time exploring the differences in groups for each measured covariates, since the goal of balancing will depend on the raw differences in the sample size representation of each of these covariates. The impacts of each covariate on the percent balance improvement among TIP and non-TIP teachers was considered, and in the end we chose to trim the sample to include only the ages of teachers who participated in TIP. To be more specific, certain ages of teachers are represented in the non-TIP sample, yet not represented in the Treatment (TIP) sample. The ages that are not represented in the TIP samples are: 32, 38, and 40+. Especially in the context of our study, where the question of interest is teacher retention, then an important confounder of staying in the classroom is age of the teacher. Therefore, matching on age without taking into account these non-representative ages may affect the balance allowed on other variables (specifically gender and ethnicity). 300 non-participating teachers were not matched in the age of the TIP participating teachers. </br>
+* Trimming the sample has the effect of improving percent balance improvement for Gender and the other category of Ethnicity. In fact, all of the variables now have sufficient percent balance improvement in the final model.
+
+
 * Teacher
 retention is a much studied topic , and programs like TIP, which enable teachers to pursue
 university-level study, thereby bringing new content to students and increasing teachers’ morale, are rooted in the mission to keep teachers helping those students who need them most. Both authors of this study were public school teachers themselves, and know that intellectual engagement is certainly as important as "purpose” in a career. One possible explanation behind the increased retention of teachers who participate in TIP may by the intellectual engagement that the program offers.
